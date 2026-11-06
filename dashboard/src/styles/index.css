@@ -1,0 +1,92 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. Everything visual in the dashboard comes from here.
+ * Contrast of each text/background pair was checked against WCAG AA
+ * (4.5:1 for text, 3:1 for control borders and focus rings).
+ */
+@theme {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Surfaces, darkest to lightest */
+  --color-canvas: #0a1120;
+  --color-panel: #0e1729;
+  --color-raised: #15213a;
+
+  /* Borders: `line` for quiet dividers, `control` for the edges of form controls */
+  --color-line: #1f2e4a;
+  --color-control: #586e94;
+
+  /* Text */
+  --color-fg: #e8eef8;
+  --color-fg-muted: #9aabc6;
+  --color-fg-faint: #8294b3;
+
+  /* Cyan accent: active navigation, focus, primary actions */
+  --color-accent: #22d3ee;
+  --color-accent-strong: #67e8f9;
+  --color-accent-fg: #04212b;
+
+  /* Status */
+  --color-danger: #f87171;
+  --color-warn: #fbbf24;
+
+  --animate-drawer-in: drawer-in 180ms ease-out;
+  --animate-fade-in: fade-in 150ms ease-out;
+
+  @keyframes drawer-in {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-canvas);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-accent) 30%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
