@@ -3,9 +3,13 @@ import { cn } from '@/shared/lib/cn'
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-2 font-semibold tracking-tight text-fg', className)}>
-      <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4 text-accent">
-        <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeWidth="2.5" />
-      </svg>
+      <span aria-hidden="true" className="relative size-5 shrink-0 overflow-hidden rounded-full">
+        <img
+          src="/Neptune-pfp.png"
+          alt=""
+          className="absolute left-1/2 top-1/2 size-[42px] max-w-none -translate-x-1/2 -translate-y-1/2"
+        />
+      </span>
       Neptune
     </span>
   )
