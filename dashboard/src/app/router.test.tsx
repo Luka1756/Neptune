@@ -11,15 +11,16 @@ const mainNav = () => within(screen.getByRole('navigation', { name: 'Main' }))
 describe('entry and authentication boundary', () => {
   it('sends / to the login screen', async () => {
     const { router } = renderRoute('/')
-    expect(await heading(/sign-in isn.t available yet/i)).toBeInTheDocument()
+    expect(await heading(/welcome to neptune/i)).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/login')
   })
 
-  it('does not pretend sign-in works: the login screen has no sign-in button', async () => {
+  it('does not pretend sign-in works: the Discord button is inert while sign-in is not configured', async () => {
     renderRoute('/login')
-    await heading(/sign-in isn.t available yet/i)
+    await heading(/welcome to neptune/i)
 
-    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    const button = screen.getByRole('button', { name: 'Continue with Discord' })
+    expect(button).toHaveAttribute('aria-disabled', 'true')
     expect(screen.getByRole('link', { name: 'Browse the preview' })).toHaveAttribute('href', '/servers')
   })
 
@@ -31,13 +32,19 @@ describe('entry and authentication boundary', () => {
 
   it('redirects signed-out visitors from app pages to the login screen', async () => {
     const { router } = renderRoute('/servers', { status: 'signed-out' })
-    expect(await heading(/sign-in isn.t available yet/i)).toBeInTheDocument()
+    expect(await heading(/welcome to neptune/i)).toBeInTheDocument()
     expect(router.state.location.pathname).toBe('/login')
+  })
+
+  it('remembers where a signed-out visitor was heading', async () => {
+    const { router } = renderRoute(`/g/${GUILD_ID}/utilities`, { status: 'signed-out' })
+    await heading(/welcome to neptune/i)
+    expect(router.state.location.state).toEqual({ from: `/g/${GUILD_ID}/utilities` })
   })
 
   it('redirects signed-out visitors away from a server page too', async () => {
     const { router } = renderRoute(`/g/${GUILD_ID}/utilities`, { status: 'signed-out' })
-    await heading(/sign-in isn.t available yet/i)
+    await heading(/welcome to neptune/i)
     expect(router.state.location.pathname).toBe('/login')
   })
 

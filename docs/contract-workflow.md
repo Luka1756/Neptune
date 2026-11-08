@@ -20,7 +20,7 @@ definitions. Paths, methods and shapes are the backend's decision.
 
 | # | Capability | Needed for | Status |
 |---|-----------|-----------|--------|
-| 1 | Identify the current signed-in user, and sign out | Login, shell | Requested |
+| 1 | Identify the current signed-in user, and sign out | Login, shell | Requested (see [`sign-in.md`](sign-in.md)) |
 | 2 | List the servers the user may manage, including whether the bot is present | Server picker | Requested |
 | 3 | Server summary | Overview | Requested |
 | 4 | Read and update a server's tool category settings | Utilities | Requested |
@@ -28,6 +28,7 @@ definitions. Paths, methods and shapes are the backend's decision.
 | 6 | Read and update the user's own preferences, including the private reply preference | Personalisation | Requested |
 | 7 | A consistent error and validation error format | All forms | Requested |
 | 8 | The CSRF scheme for cookie-authenticated writes | All writes | Requested |
+| 9 | Start Discord sign-in (scopes `identify`, `guilds`), handle the callback and report failures to `/login` | Login | Requested (see [`sign-in.md`](sign-in.md)) |
 
 ## Notes for the backend
 

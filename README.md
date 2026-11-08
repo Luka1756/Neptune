@@ -37,8 +37,9 @@ npm install
 npm run dev
 ```
 
-The dashboard is a layout preview for now: sign-in and server data need the
-backend, which doesn't exist yet. See [`dashboard/README.md`](dashboard/README.md)
+The dashboard is a layout preview for now: the sign-in screen is built, but
+signing in and server data need the backend, which doesn't exist yet
+(see [`docs/sign-in.md`](docs/sign-in.md)). See [`dashboard/README.md`](dashboard/README.md)
 for scripts, environment variables and current limitations.
 
 ## Further reading

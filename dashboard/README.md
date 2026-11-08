@@ -40,6 +40,7 @@ Copy `.env.example` to `.env.local` and edit it. Real `.env` files are ignored b
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `VITE_API_BASE_URL` | No | Base URL of the Neptune backend, without a trailing slash. Leave empty until the backend exists. |
+| `VITE_AUTH_START_URL` | No | Where "Continue with Discord" sends the browser. The backend defines it (name still to be agreed). Leave empty until then and the button stays inactive. `https` only, except `localhost`. |
 
 > **Everything prefixed `VITE_` is bundled into the page and visible to every
 > visitor.** Never put a Discord client secret, a bot token or any other secret
@@ -53,7 +54,7 @@ An invalid value (for example, one that isn't an `http(s)` URL) shows a clear
 | Route | Page |
 |-------|------|
 | `/` | Redirects to `/login` |
-| `/login` | Sign-in screen (currently explains that sign-in isn't available) |
+| `/login` | Sign-in screen (button inactive until the backend provides a sign-in address; see [`docs/sign-in.md`](../docs/sign-in.md)) |
 | `/servers` | Server selection (currently Coming soon) |
 | `/g/:guildId/overview` | Server overview |
 | `/g/:guildId/utilities` | Utilities (Coming soon) |
@@ -71,7 +72,7 @@ so the two can't be confused.
 These are deliberate. The backend is developed separately, and nothing here
 pretends otherwise.
 
-- **No authentication.** Discord sign-in will be handled entirely by the backend
+- **No working authentication.** The login screen is built, but sign-in is not. Discord sign-in will be handled entirely by the backend
   (OAuth2 authorisation code flow, secure HTTP-only session cookie). The
   dashboard never talks to Discord's OAuth endpoints, never handles tokens and
   never stores credentials in `localStorage`. Until the backend exists, every

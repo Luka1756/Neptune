@@ -19,7 +19,8 @@ is not yet decided (see "Open items").
 
 ## Authentication and permissions
 
-- Discord OAuth2, handled entirely by the backend.
+- Discord OAuth2, handled entirely by the backend. The dashboard's sign-in screen
+  is built and waits for the backend; see [`sign-in.md`](sign-in.md).
 - All authentication and server-permission checks happen on the backend.
   Anything the dashboard hides or disables is a convenience only, never
   access control.

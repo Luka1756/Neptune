@@ -1,32 +1,41 @@
-import { Navigate } from 'react-router'
-import { ButtonLink, PageHeader } from '@/shared/ui'
+import { Link, Navigate, useSearchParams } from 'react-router'
+import { env } from '@/shared/config/env'
+import { LoadingState, PageHeader } from '@/shared/ui'
+import { SignInPanel } from './SignInPanel'
+import { parseSignInOutcome } from './signInOutcome'
 import { useSession } from './session'
 
 /**
  * The login screen.
  *
  * Sign-in is handled entirely by the backend (OAuth2 authorisation code flow,
- * secure HTTP-only session cookie). The dashboard never talks to Discord's
- * OAuth endpoints or handles tokens. Once the backend publishes how to start
- * sign-in, a link to it goes here, in place of the preview link.
+ * secure HTTP-only session cookie). The dashboard only sends the browser to the
+ * address the backend provides; it never talks to Discord's OAuth endpoints,
+ * and it never sees or stores tokens. See docs/sign-in.md.
  */
 export function Component() {
   const session = useSession()
+  const [params] = useSearchParams()
+
   if (session.status === 'signed-in') return <Navigate to="/servers" replace />
+  if (session.status === 'loading') return <LoadingState label="Checking your session" />
 
   return (
     <>
       <PageHeader
-        title="Sign-in isn’t available yet"
-        description="Neptune’s backend will handle signing in with Discord, and it isn’t connected to this dashboard yet."
+        title="Welcome to Neptune"
+        description="Sign in with your Discord account to manage your servers and your personal settings."
       />
-      <p className="mb-6 max-w-prose text-fg-muted">
-        Until it is, you can look around the dashboard layout. Nothing you do there is saved, and no permissions are
-        checked.
-      </p>
-      <ButtonLink to="/servers" variant="primary">
-        Browse the preview
-      </ButtonLink>
+      <SignInPanel startUrl={env.authStartUrl} outcome={parseSignInOutcome(params)} />
+      {session.status === 'unavailable' && (
+        <p className="mt-6 text-sm text-fg-muted">
+          Just looking?{' '}
+          <Link to="/servers" className="text-fg underline underline-offset-2 hover:text-accent-strong">
+            Browse the preview
+          </Link>
+          . Nothing in it is saved and no permissions are checked.
+        </p>
+      )}
     </>
   )
 }
