@@ -34,7 +34,7 @@ export function DiscordSignInButton({ startUrl, describedBy }: DiscordSignInButt
   const icon = redirecting ? (
     <LoaderCircle aria-hidden="true" className="size-5 animate-spin" />
   ) : discordMarkUrl ? (
-    <img src={discordMarkUrl} alt="" className="size-5" />
+    <img src={discordMarkUrl} alt="" className="size-5 shrink-0 object-contain" />
   ) : (
     <LogIn aria-hidden="true" className="size-5" />
   )

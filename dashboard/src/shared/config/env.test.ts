@@ -56,4 +56,73 @@ describe('parseEnv', () => {
       expect(parseEnv({ VITE_AUTH_START_URL: 'not a url' }).issues[0]).toContain('VITE_AUTH_START_URL')
     })
   })
+
+  describe('independent validation', () => {
+    const API = 'https://api.example.com/'
+    const AUTH = 'https://api.example.com/begin'
+
+    it('accepts both when both are valid', () => {
+      expect(parseEnv({ VITE_API_BASE_URL: API, VITE_AUTH_START_URL: AUTH })).toEqual({
+        apiBaseUrl: 'https://api.example.com',
+        authStartUrl: AUTH,
+        issues: [],
+      })
+    })
+
+    it('keeps a valid API URL when the sign-in URL is malformed', () => {
+      const result = parseEnv({ VITE_API_BASE_URL: API, VITE_AUTH_START_URL: 'not a url' })
+      expect(result.apiBaseUrl).toBe('https://api.example.com')
+      expect(result.authStartUrl).toBeNull()
+      expect(result.issues).toHaveLength(1)
+      expect(result.issues[0]).toContain('VITE_AUTH_START_URL')
+    })
+
+    it('keeps a valid API URL when the sign-in URL is insecure http', () => {
+      const result = parseEnv({ VITE_API_BASE_URL: API, VITE_AUTH_START_URL: 'http://example.com/begin' })
+      expect(result.apiBaseUrl).toBe('https://api.example.com')
+      expect(result.authStartUrl).toBeNull()
+      expect(result.issues[0]).toContain('VITE_AUTH_START_URL')
+    })
+
+    it('keeps a valid sign-in URL when the API URL is malformed', () => {
+      const result = parseEnv({ VITE_API_BASE_URL: 'ftp://example.com', VITE_AUTH_START_URL: AUTH })
+      expect(result.apiBaseUrl).toBeNull()
+      expect(result.authStartUrl).toBe(AUTH)
+      expect(result.issues).toHaveLength(1)
+      expect(result.issues[0]).toContain('VITE_API_BASE_URL')
+    })
+
+    it('reports both problems when both are invalid', () => {
+      const result = parseEnv({ VITE_API_BASE_URL: 'nope', VITE_AUTH_START_URL: 'http://example.com' })
+      expect(result.apiBaseUrl).toBeNull()
+      expect(result.authStartUrl).toBeNull()
+      expect(result.issues).toHaveLength(2)
+    })
+
+    it('treats an empty value as unset without affecting the other', () => {
+      expect(parseEnv({ VITE_API_BASE_URL: '', VITE_AUTH_START_URL: AUTH })).toEqual({
+        apiBaseUrl: null,
+        authStartUrl: AUTH,
+        issues: [],
+      })
+      expect(parseEnv({ VITE_API_BASE_URL: API, VITE_AUTH_START_URL: '  ' })).toEqual({
+        apiBaseUrl: 'https://api.example.com',
+        authStartUrl: null,
+        issues: [],
+      })
+    })
+
+    it('allows http for localhost sign-in alongside an https API', () => {
+      const result = parseEnv({ VITE_API_BASE_URL: API, VITE_AUTH_START_URL: 'http://localhost:8000/begin' })
+      expect(result.authStartUrl).toBe('http://localhost:8000/begin')
+      expect(result.issues).toEqual([])
+    })
+
+    it('fails safely on non-string values', () => {
+      const result = parseEnv({ VITE_API_BASE_URL: 42, VITE_AUTH_START_URL: AUTH })
+      expect(result.apiBaseUrl).toBeNull()
+      expect(result.authStartUrl).toBe(AUTH)
+      expect(result.issues[0]).toContain('VITE_API_BASE_URL')
+    })
+  })
 })

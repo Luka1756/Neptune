@@ -25,17 +25,15 @@ function isHttpsOrLocal(value: string): boolean {
   return url.protocol === 'https:' || LOCAL_HOSTS.has(url.hostname)
 }
 
-const rawEnvSchema = z.object({
-  // The backend API. Empty means "the backend is not connected yet".
-  VITE_API_BASE_URL: optionalHttpUrl,
+// Each variable is validated on its own, so one bad value never disables another.
+const apiBaseUrlSchema = optionalHttpUrl
 
-  // The full address the browser is sent to in order to begin Discord sign-in.
-  // The backend defines it; the dashboard never builds it. Empty means
-  // "sign-in is not available yet". (The variable's name is a proposal that
-  // still needs to be confirmed with the backend. See docs/sign-in.md.)
-  VITE_AUTH_START_URL: optionalHttpUrl.refine((value) => value === undefined || isHttpsOrLocal(value), {
-    message: 'must use https (http is only allowed for localhost)',
-  }),
+// The full address the browser is sent to in order to begin Discord sign-in.
+// The backend defines it; the dashboard never builds it. Empty means
+// "sign-in is not available yet". (The variable's name is a proposal that
+// still needs to be confirmed with the backend. See docs/sign-in.md.)
+const authStartUrlSchema = optionalHttpUrl.refine((value) => value === undefined || isHttpsOrLocal(value), {
+  message: 'must use https (http is only allowed for localhost)',
 })
 
 export interface DashboardEnv {
@@ -47,25 +45,21 @@ export interface DashboardEnv {
   issues: string[]
 }
 
+/** Validates one variable. A bad value gives `null` plus a readable issue, never an exception. */
+function readUrl(name: string, schema: z.ZodType<string | undefined>, value: unknown) {
+  const result = schema.safeParse(value)
+  if (result.success) return { url: result.data ?? null, issues: [] as string[] }
+  return { url: null, issues: result.error.issues.map((issue) => `${name} ${issue.message}`) }
+}
+
 export function parseEnv(raw: Record<string, unknown>): DashboardEnv {
-  const result = rawEnvSchema.safeParse(raw)
+  const api = readUrl('VITE_API_BASE_URL', apiBaseUrlSchema, raw.VITE_API_BASE_URL)
+  const auth = readUrl('VITE_AUTH_START_URL', authStartUrlSchema, raw.VITE_AUTH_START_URL)
 
-  if (!result.success) {
-    return {
-      apiBaseUrl: null,
-      authStartUrl: null,
-      issues: result.error.issues.map((issue) => {
-        const name = issue.path.join('.') || 'environment'
-        return `${name} ${issue.message}`
-      }),
-    }
-  }
-
-  const { VITE_API_BASE_URL: apiUrl, VITE_AUTH_START_URL: authUrl } = result.data
   return {
-    apiBaseUrl: apiUrl ? apiUrl.replace(/\/+$/, '') : null,
-    authStartUrl: authUrl ?? null,
-    issues: [],
+    apiBaseUrl: api.url ? api.url.replace(/\/+$/, '') : null,
+    authStartUrl: auth.url,
+    issues: [...api.issues, ...auth.issues],
   }
 }
 
