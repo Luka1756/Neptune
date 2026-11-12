@@ -26,7 +26,11 @@ export function Component() {
         title="Welcome to Neptune"
         description="Sign in with your Discord account to manage your servers and your personal settings."
       />
-      <SignInPanel startUrl={env.authStartUrl} outcome={parseSignInOutcome(params)} />
+      <SignInPanel
+        startUrl={env.authStartUrl}
+        outcome={parseSignInOutcome(params)}
+        misconfigured={env.authStartUrl === null && env.warnings.length > 0}
+      />
       {session.status === 'unavailable' && (
         <p className="mt-6 text-sm text-fg-muted">
           Just looking?{' '}

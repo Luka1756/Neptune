@@ -1,5 +1,5 @@
 import { LoaderCircle, LogIn } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { type MouseEvent, useEffect, useState } from 'react'
 import { buttonClasses } from '@/shared/ui'
 import { discordMarkUrl } from './signInIcon'
 
@@ -11,6 +11,14 @@ interface DiscordSignInButtonProps {
   startUrl: string | null
   /** Id of the element that explains the button, so assistive technology reads it with the button. */
   describedBy?: string
+}
+
+/**
+ * True for an ordinary left click, which navigates this page. Ctrl, Cmd, Shift and Alt clicks open a new
+ * tab or window or start a download, and this page stays where it is.
+ */
+function navigatesThisPage(event: MouseEvent): boolean {
+  return event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey
 }
 
 /**
@@ -59,7 +67,9 @@ export function DiscordSignInButton({ startUrl, describedBy }: DiscordSignInButt
       href={startUrl}
       aria-describedby={describedBy}
       aria-busy={redirecting || undefined}
-      onClick={() => setRedirecting(true)}
+      onClick={(event) => {
+        if (navigatesThisPage(event)) setRedirecting(true)
+      }}
       className={buttonClasses('primary', 'w-full')}
     >
       {icon}

@@ -46,8 +46,12 @@ Copy `.env.example` to `.env.local` and edit it. Real `.env` files are ignored b
 > visitor.** Never put a Discord client secret, a bot token or any other secret
 > in the dashboard. Those belong to the backend and the bot only.
 
-An invalid value (for example, one that isn't an `http(s)` URL) shows a clear
-"misconfigured" screen instead of the app.
+Each variable is checked on its own. An invalid `VITE_API_BASE_URL` (for example,
+one that isn't an `http(s)` URL) shows a clear "misconfigured" screen instead of
+the app. An invalid `VITE_AUTH_START_URL` doesn't: the dashboard starts, `/login`
+says sign-in is unavailable, and the browser console names the variable and the
+problem (never the value). URLs must have a host and must not contain a username
+or password.
 
 ## Routes
 

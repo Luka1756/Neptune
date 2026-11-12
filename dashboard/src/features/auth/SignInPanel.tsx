@@ -6,9 +6,11 @@ import type { SignInOutcome } from './signInOutcome'
 interface SignInPanelProps {
   startUrl: string | null
   outcome: SignInOutcome | null
+  /** The sign-in address is set but invalid. Sign-in is unavailable, and the person is told to contact whoever runs this dashboard. */
+  misconfigured?: boolean
 }
 
-export function SignInPanel({ startUrl, outcome }: SignInPanelProps) {
+export function SignInPanel({ startUrl, outcome, misconfigured = false }: SignInPanelProps) {
   const noteId = useId()
   const available = startUrl !== null
 
@@ -19,7 +21,9 @@ export function SignInPanel({ startUrl, outcome }: SignInPanelProps) {
       <p id={noteId} className="mt-3 text-sm text-fg-faint">
         {available
           ? 'You’ll sign in on Discord. Neptune never sees your Discord password.'
-          : 'Sign-in isn’t available yet. It will open Discord once Neptune’s backend is connected.'}
+          : misconfigured
+            ? 'Sign-in is unavailable because it isn’t set up correctly on this dashboard. Let whoever runs it know.'
+            : 'Sign-in isn’t available yet. It will open Discord once Neptune’s backend is connected.'}
       </p>
     </div>
   )

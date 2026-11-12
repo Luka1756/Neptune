@@ -7,13 +7,14 @@ import { renderRoute } from '@/test/renderRoute'
 const START_URL = 'https://api.example.test/begin-sign-in'
 
 // The page reads its configuration from `env`, so tests change that one object.
-const mockEnv = vi.hoisted(() => ({ apiBaseUrl: null, authStartUrl: null as string | null, issues: [] as string[] }))
+const mockEnv = vi.hoisted(() => ({ apiBaseUrl: null, authStartUrl: null as string | null, issues: [] as string[], warnings: [] as string[] }))
 vi.mock('@/shared/config/env', () => ({ env: mockEnv }))
 
 const heading = () => screen.findByRole('heading', { level: 1, name: 'Welcome to Neptune' })
 
 afterEach(() => {
   mockEnv.authStartUrl = null
+  mockEnv.warnings = []
 })
 
 describe('login page, sign-in not configured (the current state)', () => {
@@ -85,6 +86,21 @@ describe('login page, sign-in not configured (the current state)', () => {
     await heading()
     expect(screen.queryByRole('link', { name: 'Browse the preview' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Continue with Discord' })).toBeInTheDocument()
+  })
+})
+
+describe('login page, sign-in address set but invalid', () => {
+  it('says sign-in is unavailable because of setup, keeps the button inert, and shows no technical detail', async () => {
+    mockEnv.warnings = ['VITE_AUTH_START_URL must use https (http is only allowed for localhost)']
+    renderRoute('/login')
+    await heading()
+
+    const button = screen.getByRole('button', { name: 'Continue with Discord' })
+    expect(button).toHaveAttribute('aria-disabled', 'true')
+    expect(button).toHaveAccessibleDescription(/isn.t set up correctly on this dashboard/i)
+    expect(screen.queryByText(/isn.t available yet/i)).not.toBeInTheDocument()
+    expect(document.body).not.toHaveTextContent(/VITE_|https \(http/i)
+    expect(screen.getByRole('link', { name: 'Browse the preview' })).toBeInTheDocument()
   })
 })
 

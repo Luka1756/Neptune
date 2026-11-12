@@ -14,6 +14,11 @@ simulated sessions, no stored credentials.
   - **Configured** (`VITE_AUTH_START_URL` set): it is a plain link, so the browser
     makes a full-page navigation to that address. After the click it shows
     "Redirecting to Discord…".
+- An invalid `VITE_AUTH_START_URL` (not a URL, no host, `http` for a non-local host,
+  or containing a username or password) does not stop the dashboard. The button
+  stays inert, `/login` says sign-in is unavailable because it isn't set up
+  correctly, and the browser console names the variable and problem, never the
+  value. An invalid `VITE_API_BASE_URL` still stops the dashboard.
 - Fixed-wording notices for two outcomes: access wasn't granted, and sign-in
   failed. Nothing from the URL or the backend is ever displayed.
 - A loading state ("Checking your session") when the session is being checked.
@@ -81,7 +86,7 @@ No other scopes are requested, and there are no other sign-in providers.
 
 | Variable | Where | Status |
 |----------|-------|--------|
-| `VITE_AUTH_START_URL` | Dashboard | **Proposed name, not agreed with the backend.** The full address the button links to. Optional. Must be `https` (plain `http` only for `localhost`). |
+| `VITE_AUTH_START_URL` | Dashboard | **Proposed name, not agreed with the backend.** The full address the button links to. Optional. Must be `https` (plain `http` only for `localhost`), have a host, and contain no username or password. |
 | Discord client ID and secret, redirect URI, session secret | Backend only | Backend's decision. Never in the dashboard. |
 
 `VITE_` values are public. The dashboard's value is only an address; it contains

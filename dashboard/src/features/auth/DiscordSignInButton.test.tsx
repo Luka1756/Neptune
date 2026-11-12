@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { DiscordSignInButton } from './DiscordSignInButton'
@@ -33,6 +33,55 @@ describe('Discord mark on the sign-in button', () => {
     await userEvent.click(link)
     expect(mark(container)).not.toBeInTheDocument()
     expect(container.querySelector('svg.animate-spin')).toBeInTheDocument()
+  })
+})
+
+describe('modified clicks on the configured link', () => {
+  const URL_ = 'https://api.example.test/begin'
+
+  /** jsdom can't navigate, so cancel the default action. This does not change what React sees. */
+  function setup() {
+    const view = render(<DiscordSignInButton startUrl={URL_} />)
+    const link = screen.getByRole('link', { name: 'Continue with Discord' })
+    link.addEventListener('click', (event) => event.preventDefault())
+    return { ...view, link }
+  }
+
+  it.each([
+    ['Ctrl', { ctrlKey: true }],
+    ['Cmd', { metaKey: true }],
+    ['Shift', { shiftKey: true }],
+    ['Alt', { altKey: true }],
+    ['a non-primary button', { button: 1 }],
+    ['the secondary button', { button: 2 }],
+  ])('does not enter the redirecting state on %s-click', (_label, init) => {
+    const { link } = setup()
+    fireEvent.click(link, init)
+
+    expect(screen.getByRole('link', { name: 'Continue with Discord' })).toBe(link)
+    expect(link).not.toHaveAttribute('aria-busy')
+    expect(screen.queryByText(/redirecting/i)).not.toBeInTheDocument()
+  })
+
+  it('still enters the redirecting state on an ordinary left click', async () => {
+    const { link } = setup()
+    await userEvent.click(link)
+    expect(screen.getByRole('link', { name: 'Redirecting to Discord…' })).toHaveAttribute('aria-busy', 'true')
+  })
+
+  it('works with a real Ctrl-click sequence from the keyboard and mouse', async () => {
+    const { link } = setup()
+    const user = userEvent.setup() // one instance, so it remembers that Control is held
+    await user.keyboard('{Control>}')
+    await user.click(link)
+    await user.keyboard('{/Control}')
+    expect(link).not.toHaveAttribute('aria-busy')
+    expect(link).toHaveAccessibleName('Continue with Discord')
+  })
+
+  it('keeps the href, so the browser can still open it in a new tab', () => {
+    const { link } = setup()
+    expect(link).toHaveAttribute('href', URL_)
   })
 })
 
